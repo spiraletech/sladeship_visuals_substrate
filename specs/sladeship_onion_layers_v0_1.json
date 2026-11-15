@@ -1,0 +1,129 @@
+{
+  "project": "SLADESHIP",
+  "artifact": "title-screen-onion-substrate",
+  "version": "0.1.0-concept",
+  "status": "PROPOSED_NOT_APPROVED",
+  "reference": "User-provided SLADESHIP title visual 2026-11-14",
+  "coordinate_system": {
+    "type": "normalized",
+    "origin": "top-left",
+    "range": [
+      0,
+      1
+    ],
+    "reference_aspect_ratio": "16:9",
+    "fit": "contain"
+  },
+  "palette": {
+    "background": "#000000",
+    "text_main": "#F3EAFF",
+    "violet": "#A44CFF",
+    "magenta": "#E85CFF",
+    "indigo": "#382D9E",
+    "cyan_highlight": "#68C8FF"
+  },
+  "layers_back_to_front": [
+    {
+      "id": "L00",
+      "name": "background",
+      "type": "solid-color",
+      "interactive": false,
+      "render": "full-bleed black, no outer border"
+    },
+    {
+      "id": "L01",
+      "name": "ground_reflection",
+      "type": "procedural-svg",
+      "anchor": [
+        0.5,
+        0.91
+      ],
+      "interactive": false,
+      "render": "thin concentric ellipse, no floor texture"
+    },
+    {
+      "id": "L02",
+      "name": "core_orb",
+      "type": "procedural-svg",
+      "anchor": [
+        0.5,
+        0.29
+      ],
+      "interactive": false,
+      "render": "glossy purple gradient sphere, transparent exterior"
+    },
+    {
+      "id": "L03",
+      "name": "orbital_rings",
+      "type": "procedural-svg",
+      "anchor": [
+        0.5,
+        0.29
+      ],
+      "interactive": false,
+      "render": "independent crossing orbital ellipses"
+    },
+    {
+      "id": "L04",
+      "name": "core_glint",
+      "type": "procedural-svg",
+      "anchor": [
+        0.5,
+        0.29
+      ],
+      "interactive": false,
+      "render": "four-point light flare"
+    },
+    {
+      "id": "L05",
+      "name": "wordmark",
+      "type": "live-text",
+      "text": "SLADESHIP",
+      "anchor": [
+        0.5,
+        0.6
+      ],
+      "interactive": false
+    },
+    {
+      "id": "L06",
+      "name": "subtitle",
+      "type": "live-text",
+      "text": "ETHERTECH VISUAL SYSTEM",
+      "anchor": [
+        0.5,
+        0.67
+      ],
+      "interactive": false
+    },
+    {
+      "id": "L07",
+      "name": "enter_studio",
+      "type": "html-button",
+      "text": "ENTER STUDIO",
+      "anchor": [
+        0.5,
+        0.8
+      ],
+      "interactive": true,
+      "action": "navigate_to_studio",
+      "keyboard": [
+        "Enter",
+        "Space"
+      ]
+    }
+  ],
+  "deferred_elements": [
+    "full-edge iridescent ribbons",
+    "decorative perimeter stars",
+    "scanlines",
+    "large floor texture",
+    "outer border"
+  ],
+  "verification_gate": [
+    "C++ compilation and test",
+    "layer independence",
+    "keyboard navigation",
+    "visual approval before canon promotion"
+  ]
+}
