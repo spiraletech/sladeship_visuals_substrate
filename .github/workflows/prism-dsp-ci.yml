@@ -1,0 +1,26 @@
+name: SLADESHIP PRISM DSP regression
+on:
+  push:
+    branches: ["integration/prism-lab-dsp-core"]
+  pull_request:
+    paths:
+      - "src/dsp/**"
+      - "tests/prism_dsp_tests.cpp"
+      - "CMakeLists.txt"
+      - "src/main.cpp"
+      - ".github/workflows/prism-dsp-ci.yml"
+jobs:
+  build-and-test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure
+        run: cmake -S . -B build -DBUILD_TESTING=ON
+      - name: Build
+        run: cmake --build build --config Release
+      - name: Test
+        run: ctest --test-dir build -C Release --output-on-failure
