@@ -25,3 +25,24 @@ if(BUILD_TESTING)
   target_link_libraries(prism_timeline_tests PRIVATE sladeship_prism_dsp)
   add_test(NAME prism_timeline COMMAND prism_timeline_tests)
 endif()
+
+# Windows-native producer studio experiment (separate from approved onion-layer launcher).
+if(WIN32)
+  add_executable(sladeship_studio WIN32 src/windows/StudioPreview.cpp)
+  target_include_directories(sladeship_studio PRIVATE src)
+  target_compile_definitions(sladeship_studio PRIVATE UNICODE _UNICODE NOMINMAX)
+  target_link_libraries(sladeship_studio PRIVATE
+    sladeship_prism_dsp d3d11 d3dcompiler dxgi mfplat mfplay mfreadwrite mfuuid
+    ole32 comdlg32 shell32
+  )
+  set_target_properties(sladeship_studio PROPERTIES OUTPUT_NAME "SLADESHIP_STUDIO")
+  if(MSVC)
+    target_compile_options(sladeship_studio PRIVATE /W4 /utf-8)
+  endif()
+  if(BUILD_TESTING)
+    add_executable(studio_shader_tests tests/studio_shader_tests.cpp)
+    target_include_directories(studio_shader_tests PRIVATE src)
+    target_link_libraries(studio_shader_tests PRIVATE d3dcompiler)
+    add_test(NAME studio_shader COMMAND studio_shader_tests)
+  endif()
+endif()
