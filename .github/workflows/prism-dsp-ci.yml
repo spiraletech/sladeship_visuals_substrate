@@ -1,0 +1,36 @@
+name: SLADESHIP PRISM DSP regression
+on:
+  push:
+    branches: ["integration/prism-lab-dsp-core", "feature/ps2-producer-dsp-studio"]
+  pull_request:
+    paths:
+      - "src/dsp/**"
+      - "src/windows/**"
+      - "tests/prism_dsp_tests.cpp"
+      - "tests/prism_timeline_tests.cpp"
+      - "tests/studio_shader_tests.cpp"
+      - "CMakeLists.txt"
+      - "src/main.cpp"
+      - ".github/workflows/prism-dsp-ci.yml"
+jobs:
+  build-and-test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure
+        run: cmake -S . -B build -DBUILD_TESTING=ON
+      - name: Build
+        run: cmake --build build --config Release
+      - name: Test
+        run: ctest --test-dir build -C Release --output-on-failure
+      - name: Publish Windows studio EXE
+        if: runner.os == 'Windows'
+        uses: actions/upload-artifact@v4
+        with:
+          name: SLADESHIP_STUDIO-Windows-x64
+          path: build/Release/SLADESHIP_STUDIO.exe
+          if-no-files-found: error
