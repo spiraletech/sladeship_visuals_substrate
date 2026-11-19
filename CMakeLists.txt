@@ -5,6 +5,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 add_library(sladeship_prism_dsp
   src/dsp/PrismDsp.cpp
   src/dsp/PrismWav.cpp
+  src/dsp/PrismTimeline.cpp
 )
 target_include_directories(sladeship_prism_dsp PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src)
 add_executable(sladeship src/main.cpp)
@@ -20,4 +21,7 @@ if(BUILD_TESTING)
   add_executable(prism_dsp_tests tests/prism_dsp_tests.cpp)
   target_link_libraries(prism_dsp_tests PRIVATE sladeship_prism_dsp)
   add_test(NAME prism_dsp COMMAND prism_dsp_tests)
+  add_executable(prism_timeline_tests tests/prism_timeline_tests.cpp)
+  target_link_libraries(prism_timeline_tests PRIVATE sladeship_prism_dsp)
+  add_test(NAME prism_timeline COMMAND prism_timeline_tests)
 endif()
