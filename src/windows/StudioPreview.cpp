@@ -1,4 +1,3 @@
-#define NOMINMAX
 #include <windows.h>
 #include <commdlg.h>
 #include <shellapi.h>
@@ -184,8 +183,9 @@ public:
             }
         }
         const wchar_t* sceneNames[]={L"ORBITAL STUDIO",L"FREQUENCY CATHEDRAL",L"LIQUID MEMORY"};
-        const std::wstring name=std::wstring(L"SLADESHIP // ")+sceneNames[scene]+
-            L" | O: Open WAV | Space: Play/Pause | Arrows: Seek | 1-3: Scenes";
+        const std::wstring name=worker.valid() ? L"SLADESHIP // ANALYZING WAV..."
+            : std::wstring(L"SLADESHIP // ")+sceneNames[scene]+
+              L" | O: Open WAV | Space: Play/Pause | Arrows: Seek | 1-3: Scenes";
         SetWindowTextW(window,name.c_str());
         render();
     }
