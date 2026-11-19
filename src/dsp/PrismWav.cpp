@@ -6,6 +6,8 @@
 #include <cstdint>
 #include <cstring>
 #include <fstream>
+#include <filesystem>
+#include <memory>
 #include <stdexcept>
 #include <vector>
 
@@ -45,8 +47,9 @@ float unpack(const unsigned char* bytes, std::uint16_t format, std::uint16_t bit
 }
 } // namespace
 
-SpectrumFrame analyzeWaveFile(const std::string& path) {
-    std::ifstream in(path, std::ios::binary);
+WaveInfo streamWaveFile(const std::string& path, const PcmConsumer& consume) {
+    if (!consume) throw std::invalid_argument("PRISM WAV: missing PCM consumer");
+    std::ifstream in(std::filesystem::u8path(path), std::ios::binary);
     if (!in) throw std::runtime_error("PRISM WAV: cannot open file: " + path);
     std::array<unsigned char, 12> riff{};
     readExact(in, reinterpret_cast<char*>(riff.data()), static_cast<std::streamsize>(riff.size()));
@@ -84,11 +87,10 @@ SpectrumFrame analyzeWaveFile(const std::string& path) {
         (format != 1 && format != 3) || (bits != 16 && bits != 24 && bits != 32) ||
         (format == 3 && bits != 32) || alignment != channels * (bits / 8))
         throw std::runtime_error("PRISM WAV: unsupported or malformed WAV format");
-    if (dataBytes < alignment * kFftSize || dataBytes % alignment)
+    if (dataBytes == 0 || dataBytes % alignment)
         throw std::runtime_error("PRISM WAV: audio shorter than 4096 frames or invalid block alignment");
     in.clear(); in.seekg(dataPos);
     if (!in) throw std::runtime_error("PRISM WAV: missing data payload");
-    PrismDsp dsp(sampleRate);
     constexpr std::size_t blockFrames = kFftSize;
     std::vector<unsigned char> raw(blockFrames * alignment);
     std::vector<float> pcm(blockFrames * channels);
@@ -102,10 +104,22 @@ SpectrumFrame analyzeWaveFile(const std::string& path) {
                 pcm[i * channels + c] = unpack(raw.data() + i * alignment + c * (bits / 8), format, bits);
             }
         }
-        dsp.pushInterleaved(pcm.data(), frames, channels);
-        if (dsp.bufferedFrames() >= kFftSize) dsp.analyze();
+        consume(pcm.data(), frames, channels, sampleRate);
         remaining -= static_cast<std::uint32_t>(bytes);
     }
-    return dsp.frame();
+    return WaveInfo{sampleRate, channels, dataBytes / alignment};
+}
+
+SpectrumFrame analyzeWaveFile(const std::string& path) {
+    std::unique_ptr<PrismDsp> dsp;
+    std::uint64_t decoded = 0;
+    streamWaveFile(path, [&](const float* samples, std::size_t frames, unsigned channels, std::uint32_t rate) {
+        if (!dsp) dsp = std::make_unique<PrismDsp>(rate);
+        dsp->pushInterleaved(samples, frames, channels);
+        decoded += frames;
+        if (dsp->bufferedFrames() >= kFftSize) dsp->analyze();
+    });
+    if (!dsp || decoded < kFftSize) throw std::runtime_error("PRISM WAV: audio shorter than 4096 frames");
+    return dsp->frame();
 }
 } // namespace sladeship::prism
